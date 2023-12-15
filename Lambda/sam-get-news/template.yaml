@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-get-news
+
+Globals:
+  Function:
+    Timeout: 300 # It can take some time to process all the news
+    MemorySize: 128 # No need for more CPU/memory
+
+Resources:
+
+  NewsBucket:
+    Type: AWS::S3::Bucket
+
+  GetNewsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_news/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - arm64 # You can use either arm64 or x86_64 for this function
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: 
+              - bedrock:InvokeModel
+            Resource: '*'
+          - Effect: Allow
+            Action: s3:PutObject
+            Resource: !Sub 'arn:aws:s3:::${NewsBucket}/news.json'
+      Environment:
+        Variables:
+          OUTPUT_BUCKET: !Ref NewsBucket
+          OUTPUT_FILE: 'news.json'
+          RSS_LINK: 'https://aws.amazon.com/about-aws/whats-new/recent/feed/' # AWS News
+#         RSS_LINK: 'http://feeds.bbci.co.uk/news/rss.xml' # BBC Top Stories
+#         RSS_LINK: 'http://rss.cnn.com/rss/edition.rss' # CNN Top Stories
+          SPECIAL_INSTRUCTIONS: 'Focus on the benefits. Use short sentences.'
+      Events:
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: 'cron(13 5 ? * MON-FRI *)' # Weekdays at 5.13am
+
+Outputs:
+  OutputBucket:
+    Description: 'Output S3 Bucket'
+    Value: !Ref NewsBucket
+  NewsUrl:
+    Description: 'News URL'
+    Value: !Sub 'https://${NewsBucket.RegionalDomainName}/news.json'
+  GetNewsFunction:
+    Description: 'Lambda Function ARN'
+    Value: !GetAtt GetNewsFunction.Arn
+  GetNewsFunctionIamRole:
+    Description: 'Implicit IAM Role created for function'
+    Value: !GetAtt GetNewsFunctionRole.Arn
