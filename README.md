@@ -138,7 +138,7 @@ source .venv/bin/activate
 In the `Lambda/sam-get-news/get-news` directory, install all dependencies:
 
 ```sh
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Define the environment variable used by the Lambda function:
