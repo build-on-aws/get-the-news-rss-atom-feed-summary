@@ -129,6 +129,12 @@ In the main directory of the project, create a virtual environemnt:
 python3 -m venv .venv
 ```
 
+Then, activate the virtual environment:
+
+```sh
+source .venv/bin/activate
+```
+
 In the `Lambda/sam-get-news/get-news` directory, install all dependencies:
 
 ```sh
