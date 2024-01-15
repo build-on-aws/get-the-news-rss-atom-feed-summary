@@ -1,6 +1,6 @@
 .aws-sam
 .vscode
-.pptx
+*.pptx
 
 # Created by https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
